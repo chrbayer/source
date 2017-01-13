@@ -74,21 +74,13 @@ $(curdir)/install: $(TMP_DIR)/.build $(curdir)/system/opkg/host/install $(curdir
 
 	$(call prepare_rootfs,$(TARGET_DIR))
 
-PASSOPT=""
-PASSARG=""
-ifndef CONFIG_OPKGSMIME_PASSPHRASE
-  ifneq ($(call qstrip,$(CONFIG_OPKGSMIME_PASSFILE)),)
-    PASSOPT="-passin"
-    PASSARG="file:$(call qstrip,$(CONFIG_OPKGSMIME_PASSFILE))"
-  endif
-endif
-
 $(curdir)/index: FORCE
 	@echo Generating package index...
 	@for d in $(PACKAGE_SUBDIRS); do ( \
 		mkdir -p $$d; \
 		cd $$d || continue; \
-		$(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages && \
+		$(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages.manifest; \
+		grep -vE '^(Maintainer|LicenseFiles|Source|Require)' Packages.manifest > Packages && \
 			gzip -9nc Packages > Packages.gz; \
 	); done
 ifdef CONFIG_SIGNED_PACKAGES
@@ -98,25 +90,6 @@ ifdef CONFIG_SIGNED_PACKAGES
 			cd $$d || continue; \
 		$(STAGING_DIR_HOST)/bin/usign -S -m Packages -s $(BUILD_KEY); \
 	); done
-else
-ifeq ($(call qstrip,$(CONFIG_OPKGSMIME_KEY)),)
-	@echo Signing key has not been configured
-else
-ifeq ($(call qstrip,$(CONFIG_OPKGSMIME_CERT)),)
-	@echo Certificate has not been configured
-else
-	@echo Signing package index...
-	@for d in $(PACKAGE_SUBDIRS); do ( \
-		[ -d $$d ] && \
-			cd $$d || continue; \
-		openssl smime -binary -in Packages.gz \
-			-out Packages.sig -outform PEM -sign \
-			-signer $(CONFIG_OPKGSMIME_CERT) \
-			-inkey $(CONFIG_OPKGSMIME_KEY) \
-			$(PASSOPT) $(PASSARG); \
-	); done
-endif
-endif
 endif
 
 $(curdir)/preconfig:
