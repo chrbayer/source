@@ -1,0 +1,33 @@
+#!/bin/sh
+
+if [ -e /etc/config/.firstrun ]; then exit 0; fi
+
+touch /etc/config/.firstrun
+
+m1=$(cat /sys/class/net/wlan0/address | awk -F':' '{ print $5 }' | awk '{print toupper($0)}')
+m2=$(cat /sys/class/net/wlan0/address | awk -F':' '{ print $6 }' | awk '{print toupper($0)}')
+
+uci -q batch <<-EOF > /dev/null
+	set system.@system[0].hostname=Omega-$m1$m2
+	commit system
+	set wireless.@wifi-iface[0].ssid='Omega-$m1$m2'
+	set wireless.@wifi-iface[0].encryption='psk2'
+	set wireless.@wifi-iface[0].key='12345678'
+	set wireless.@wifi-device[0].channel='9'
+	set wireless.@wifi-device[0].htmode='HT40'
+	set wireless.@wifi-device[0].disabled='0'
+	set wireless.@wifi-device[0].country='US'
+	commit wireless
+EOF
+
+echo 'alias dir="ls -lh --color"' >>/etc/profile
+echo "/root/" >>/etc/sysupgrade.conf
+cp /www/index.html /www/luci.html
+
+echo "src/gz omega2_core http://repo.onion.io/omega2/packages/core
+src/gz omega2_base http://repo.onion.io/omega2/packages/base
+src/gz omega2_packages http://repo.onion.io/omega2/packages/packages
+src/gz omega2_onion http://repo.onion.io/omega2/packages/onion" \
+>> /etc/opkg/distfeeds.conf
+
+exit 0
