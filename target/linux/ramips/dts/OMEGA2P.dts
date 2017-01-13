@@ -1,0 +1,16 @@
+/dts-v1/;
+
+#include "omega2.dtsi"
+
+/ {
+	model = "Onion Omega2+";
+};
+
+&sdhci {
+	status = "okay";
+	mediatek,cd-low;
+};
+
+&firmware {
+	reg = <0x50000 0x1fb0000>;
+};

@@ -1,0 +1,11 @@
+/dts-v1/;
+
+#include "omega2.dtsi"
+
+/ {
+	model = "Onion Omega2";
+};
+
+&firmware {
+	reg = <0x50000 0xfb0000>;
+};
