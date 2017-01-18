@@ -1,5 +1,13 @@
 #!/bin/sh
 
+cp /www/index.html /www/luci.html
+
+echo "src/gz omega2_core http://repo.onion.io/omega2/packages/core
+src/gz omega2_base http://repo.onion.io/omega2/packages/base
+src/gz omega2_packages http://repo.onion.io/omega2/packages/packages
+src/gz omega2_onion http://repo.onion.io/omega2/packages/onion" \
+>> /etc/opkg/distfeeds.conf
+
 if [ -e /etc/config/.firstrun ]; then exit 0; fi
 
 touch /etc/config/.firstrun
@@ -22,12 +30,5 @@ EOF
 
 echo 'alias dir="ls -lh --color"' >>/etc/profile
 echo "/root/" >>/etc/sysupgrade.conf
-cp /www/index.html /www/luci.html
-
-echo "src/gz omega2_core http://repo.onion.io/omega2/packages/core
-src/gz omega2_base http://repo.onion.io/omega2/packages/base
-src/gz omega2_packages http://repo.onion.io/omega2/packages/packages
-src/gz omega2_onion http://repo.onion.io/omega2/packages/onion" \
->> /etc/opkg/distfeeds.conf
 
 exit 0
