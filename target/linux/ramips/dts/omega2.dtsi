@@ -101,10 +101,6 @@
 	status = "okay";
 };
 
-&uart2 {
-	status = "okay";
-};
-
 &pwm {
 	status = "okay";
 };
@@ -118,5 +114,9 @@
 };
 
 &gpio1 {
+	status = "okay";
+};
+
+&gdma {
 	status = "okay";
 };
