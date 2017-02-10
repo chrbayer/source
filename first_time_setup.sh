@@ -38,6 +38,7 @@ echo -e "${LGREEN}git config --global user.email bogus${NC}"
 echo -e "${LGREEN}git config --global user.name bogus${NC}"
 echo
 echo -e "${LGREEN}Once set, run this script again in order to continue.${NC}"
+exit 1
 fi
 
 git config --get user.name >/dev/null
@@ -52,6 +53,7 @@ echo -e "${LGREEN}git config --global user.email bogus${NC}"
 echo -e "${LGREEN}git config --global user.name bogus${NC}"
 echo
 echo -e "${LGREEN}Once set, run this script again in order to continue.${NC}"
+exit
 fi
 
 git remote|grep "upstream" >/dev/null
