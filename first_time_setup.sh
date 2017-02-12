@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd .
+pushd . >/dev/null
 pushd `dirname $0` > /dev/null
 export SCRIPTDIR=`pwd`
 popd > /dev/null
@@ -17,8 +17,16 @@ echo -e "${LGREEN}the packages git libncurses5-dev build-essential gawk zlib1g-d
 echo -e "${LGREEN}or their equivalents for your distro installed.${NC}"
 sleep 10
 else
-echo -e "${LGREEN}Installing required dependencies, if any are missing...${NC}"
-sudo apt -y install git libncurses5-dev build-essential gawk zlib1g-dev
+echo -e "${LGREEN}Checking for required dependencies...${NC}"
+for x in "git libncurses5-dev build-essential gawk zlib1g-dev"
+do
+dpkg -s $x >/dev/null 2>/dev/null
+if [ $? -eq 1 ]
+then
+echo -e "${LGREEN}Installing $x...${NC}"
+sudo apt -y install $x
+fi
+done
 if [ $? -eq 1 ]
 then
 echo -e "${RED}Error installing dependencies, exiting!${NC}"
