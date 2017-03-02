@@ -4,7 +4,7 @@ pushd `dirname $0` > /dev/null
 export SCRIPTDIR=`pwd`
 popd > /dev/null
 
-cd $SCRIPTDIR
+cd "$SCRIPTDIR"
 export LGREEN='\033[1;32m'
 export RED='\033[0;31m'
 export NC='\033[0m' # No Color
@@ -80,6 +80,34 @@ fi
 
 scripts/feeds update -a
 scripts/feeds install -a
+
+#Ugly fix for several packages
+#Onion-devs don't give a fuck
+onionNeedCommit=0
+find feeds/onion -iname "Makefile" | while read filename
+do
+githubUrl=$(grep "git@github.com" "$SCRIPTDIR/$filename")
+if [ $? -eq 0 ]
+then
+githubUrl=$(echo "$githubUrl"|sed 's/git@github.com:/https:\/\/github.com\//'|sed 's/\.git//'|cut -d '=' -f 2-)
+curl --output /dev/null --silent --head --fail "$githubUrl"
+if [ $? -eq 0 ]
+then
+echo "Patching $filename..."
+sed -i 's/git@github.com:/https:\/\/github.com\//' "$SCRIPTDIR/$filename"
+onionNeedCommit=1
+fi
+fi
+done
+
+if [ $onionNeedCommit -eq 1 ]
+then
+pushd .
+cd feeds/onion
+git add -A
+git commit -m "Stop using SSH in Makefiles"
+popd
+fi
 
 NUM_CORES=$(cat /proc/cpuinfo|grep -c1 "cpu cores")
 let NUM_CORES++
