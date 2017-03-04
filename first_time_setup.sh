@@ -72,6 +72,11 @@ fi
 
 git fetch upstream
 git merge upstream/master --no-edit
+if [ $? -eq 1 ]
+then
+echo -e "${LGREEN}Merging from upstream failed, please, fix the problem and re-run the script.${NC}"
+exit 1
+fi
 grep "src-git onion https://github.com/OnionIoT/OpenWRT-Packages.git;omega2" feeds.conf.default > /dev/null
 if [ $? -eq 1 ]
 then
@@ -117,6 +122,7 @@ echo
 echo -e "${LGREEN}Now we have to visit menuconfig, just choose exit${NC}"
 echo -e "${LGREEN}and accept to saving changes.${NC}"
 sleep 8
+cp DefaultConfig .config
 make -j$NUM_CORES menuconfig
 
 echo -e "${LGREEN}Now you can proceed with the compile with:${NC}"
